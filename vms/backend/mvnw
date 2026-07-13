@@ -1,0 +1,57 @@
+#!/bin/sh
+# ----------------------------------------------------------------------------
+# Maven Wrapper (mvnw) — lightweight, self-contained launcher.
+#
+# On first run this downloads the exact Maven version pinned in
+# .mvn/wrapper/maven-wrapper.properties into ~/.m2/wrapper/dists and then
+# delegates to it. This lets you run `./mvnw spring-boot:run` without having
+# Maven installed globally, and guarantees everyone on the project builds
+# with the same Maven version.
+# ----------------------------------------------------------------------------
+
+set -e
+
+WRAPPER_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROPS_FILE="$WRAPPER_DIR/.mvn/wrapper/maven-wrapper.properties"
+
+if [ ! -f "$PROPS_FILE" ]; then
+  echo "ERROR: Could not find $PROPS_FILE" >&2
+  exit 1
+fi
+
+DISTRIBUTION_URL=$(grep '^distributionUrl=' "$PROPS_FILE" | cut -d'=' -f2-)
+
+if [ -z "$DISTRIBUTION_URL" ]; then
+  echo "ERROR: distributionUrl not set in $PROPS_FILE" >&2
+  exit 1
+fi
+
+DIST_FILE=$(basename "$DISTRIBUTION_URL")
+DIST_NAME=$(echo "$DIST_FILE" | sed 's/-bin\.zip$//')
+CACHE_DIR="$HOME/.m2/wrapper/dists/$DIST_NAME"
+MAVEN_HOME="$CACHE_DIR/$DIST_NAME"
+MVN_BIN="$MAVEN_HOME/bin/mvn"
+
+if [ ! -x "$MVN_BIN" ]; then
+  echo "Maven ($DIST_NAME) not found locally — downloading (one-time setup)..."
+  mkdir -p "$CACHE_DIR"
+  TMP_ZIP="$CACHE_DIR/$DIST_FILE"
+
+  if command -v curl >/dev/null 2>&1; then
+    curl -fsSL -o "$TMP_ZIP" "$DISTRIBUTION_URL"
+  elif command -v wget >/dev/null 2>&1; then
+    wget -q -O "$TMP_ZIP" "$DISTRIBUTION_URL"
+  else
+    echo "ERROR: Neither curl nor wget is available to download Maven." >&2
+    echo "Install Maven manually, or install curl/wget, and try again." >&2
+    exit 1
+  fi
+
+  echo "Extracting..."
+  unzip -q -o "$TMP_ZIP" -d "$CACHE_DIR"
+  rm -f "$TMP_ZIP"
+  chmod +x "$MVN_BIN"
+  echo "Maven $DIST_NAME ready at $MAVEN_HOME"
+fi
+
+exec "$MVN_BIN" "$@"

@@ -1,0 +1,17 @@
+{
+  "name": "vehicle-management-system",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Runs the Spring Boot backend and React frontend together from a single terminal.",
+  "scripts": {
+    "dev": "concurrently -n BACKEND,FRONTEND -c blue,green \"npm:dev:backend:win\" \"npm:dev:frontend\"",
+    "dev:unix": "concurrently -n BACKEND,FRONTEND -c blue,green \"npm:dev:backend:unix\" \"npm:dev:frontend\"",
+    "dev:backend:win": "cd backend && mvnw.cmd spring-boot:run",
+    "dev:backend:unix": "cd backend && ./mvnw spring-boot:run",
+    "dev:frontend": "cd frontend && npm run dev",
+    "install:frontend": "cd frontend && npm install"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}
